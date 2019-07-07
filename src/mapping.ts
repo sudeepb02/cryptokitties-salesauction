@@ -10,7 +10,8 @@ import {
   AuctionSuccessful,
   AuctionCancelled,
   Pause,
-  Unpause
+  Unpause,
+  SalesSummary
 } from "../generated/schema"
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
@@ -22,6 +23,26 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
   entity.endingPrice = event.params.endingPrice
   entity.duration = event.params.duration
   entity.save()
+
+  //Get Sales summary entity, if does not exist, create new
+  let salesSummary = SalesSummary.load("1");
+  if (salesSummary == null) {
+    salesSummary = new SalesSummary("1")
+    salesSummary.auctionsCreated = 0
+    salesSummary.valueCreated = event.params.startingPrice - event.params.startingPrice
+  }
+
+  //Increment the auctionsCreated count
+  let auctionsCreatedCount = salesSummary.auctionsCreated
+  auctionsCreatedCount = auctionsCreatedCount + 1
+  salesSummary.auctionsCreated = auctionsCreatedCount
+
+  //Increment the value of auctions created
+  let valueCreatedETH = salesSummary.valueCreated
+  valueCreatedETH = valueCreatedETH + event.params.startingPrice
+  salesSummary.valueCreated = valueCreatedETH
+  salesSummary.save()
+
 }
 
 export function handleAuctionSuccessful(event: AuctionSuccessfulEvent): void {
