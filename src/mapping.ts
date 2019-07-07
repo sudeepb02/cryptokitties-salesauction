@@ -24,12 +24,19 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
   entity.duration = event.params.duration
   entity.save()
 
+  let bigInt0 = event.params.startingPrice - event.params.startingPrice
+
   //Get Sales summary entity, if does not exist, create new
   let salesSummary = SalesSummary.load("1");
   if (salesSummary == null) {
     salesSummary = new SalesSummary("1")
     salesSummary.auctionsCreated = 0
-    salesSummary.valueCreated = event.params.startingPrice - event.params.startingPrice
+    salesSummary.auctionsCompleted = 0
+    salesSummary.auctionsCancelled = 0
+
+    salesSummary.valueCreated = bigInt0
+    salesSummary.valueCompleted = bigInt0
+    salesSummary.valueCancelled = bigInt0
   }
 
   //Increment the auctionsCreated count
@@ -53,6 +60,33 @@ export function handleAuctionSuccessful(event: AuctionSuccessfulEvent): void {
   entity.totalPrice = event.params.totalPrice
   entity.winner = event.params.winner
   entity.save()
+
+  let bigInt0 = event.params.totalPrice - event.params.totalPrice
+
+  //Get Sales summary entity if exists, else create new
+  let salesSummary = SalesSummary.load("1");
+  if (salesSummary == null) {
+    salesSummary = new SalesSummary("1")
+    salesSummary.auctionsCreated = 0
+    salesSummary.auctionsCompleted = 0
+    salesSummary.auctionsCancelled = 0
+
+    salesSummary.valueCreated = bigInt0
+    salesSummary.valueCompleted = bigInt0
+    salesSummary.valueCancelled = bigInt0
+  }
+
+  //Increment the auctionsCompleted count
+  let auctionsCompletedCount = salesSummary.auctionsCompleted
+  auctionsCompletedCount = auctionsCompletedCount + 1
+  salesSummary.auctionsCompleted = auctionsCompletedCount
+
+  //Increment the value of auctions completed
+  let valueCompletedETH = salesSummary.valueCompleted
+  valueCompletedETH = valueCompletedETH + event.params.totalPrice
+  salesSummary.valueCompleted = valueCompletedETH
+  salesSummary.save()
+
 }
 
 export function handleAuctionCancelled(event: AuctionCancelledEvent): void {
