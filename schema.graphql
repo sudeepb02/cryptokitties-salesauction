@@ -25,3 +25,13 @@ type Pause @entity {
 type Unpause @entity {
   id: ID!
 }
+
+type SalesSummary @entity {
+  id: ID!
+  auctionsCreated: Int!
+  auctionsCompleted: Int!
+  auctionsCancelled: Int!
+  valueCreated: BigInt!
+  valueCompleted: BigInt!
+  valueCancelled: BigInt!
+}
