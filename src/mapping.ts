@@ -11,7 +11,8 @@ import {
   AuctionCancelled,
   Pause,
   Unpause,
-  SalesSummary
+  SalesSummary,
+  Master
 } from "../generated/schema"
 
 import {BigInt} from '@graphprotocol/graph-ts'
@@ -50,6 +51,19 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
   salesSummary.valueCreated = valueCreatedETH
   salesSummary.save()
 
+  //Get Master entity
+  let master = Master.load(event.transaction.from.toHex())
+  if (master == null) {
+    master = new Master(event.transaction.from.toHex())
+    master.firstTransacted = event.block.timestamp
+    master.lastTransacted = event.block.timestamp
+    master.totalKittiesBought = 0
+    master.totalKittiesSold = 0
+    master.valueSpentBuying = BigInt.fromI32(0)
+    master.valueEarnedSelling = BigInt.fromI32(0)
+  }
+  master.save()
+
 }
 
 export function handleAuctionSuccessful(event: AuctionSuccessfulEvent): void {
@@ -84,6 +98,22 @@ export function handleAuctionSuccessful(event: AuctionSuccessfulEvent): void {
   valueCompletedETH = valueCompletedETH + event.params.totalPrice
   salesSummary.valueCompleted = valueCompletedETH
   salesSummary.save()
+  
+  //Get Master entity
+  let master = Master.load(event.params.winner.toHex())
+  if (master == null) {
+    master = new Master(event.params.winner.toHex())
+    master.firstTransacted = event.block.timestamp
+    master.lastTransacted = event.block.timestamp
+    master.totalKittiesBought = 0
+    master.totalKittiesSold = 0
+    master.valueSpentBuying = BigInt.fromI32(0)
+    master.valueEarnedSelling = BigInt.fromI32(0)
+  }
+  master.totalKittiesBought = master.totalKittiesBought + 1
+  master.valueSpentBuying.plus(event.params.totalPrice)
+  master.lastTransacted = event.block.timestamp
+  master.save()
 
 }
 

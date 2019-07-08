@@ -35,3 +35,15 @@ type SalesSummary @entity {
   valueCompleted: BigInt!
   valueCancelled: BigInt!
 }
+
+type Master @entity {
+  id: ID!
+  firstTransacted: BigInt!
+  lastTransacted: BigInt!
+  totalKittiesBought: Int!
+  totalKittiesSold: Int!
+  valueSpentBuying: BigInt!
+  valueEarnedSelling: BigInt!
+}
+
+  
