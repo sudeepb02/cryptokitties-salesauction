@@ -12,7 +12,8 @@ import {
   Pause,
   Unpause,
   SalesSummary,
-  Master
+  Master,
+  DailyStat
 } from "../generated/schema"
 
 import {BigInt} from '@graphprotocol/graph-ts'
@@ -62,8 +63,24 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     master.valueSpentBuying = BigInt.fromI32(0)
     master.valueEarnedSelling = BigInt.fromI32(0)
   }
+  master.lastTransacted = event.block.timestamp
   master.save()
-
+  
+  let day = event.block.timestamp / BigInt.fromI32(86400)
+  let dayID = day.toString()
+  let dailyStat = DailyStat.load(dayID)
+  if (dailyStat == null) {
+    dailyStat = new DailyStat(dayID)
+    dailyStat.auctionsCreatedToday = 0
+    dailyStat.auctionsCompletedToday = 0
+    dailyStat.auctionsCancelledToday = 0
+    dailyStat.valueCreatedToday = BigInt.fromI32(0)
+    dailyStat.valueCompletedToday = BigInt.fromI32(0)
+  }
+  dailyStat.auctionsCreatedToday = dailyStat.auctionsCreatedToday + 1
+  dailyStat.valueCreatedToday = dailyStat.valueCreatedToday + event.params.startingPrice
+  dailyStat.save()
+  
 }
 
 export function handleAuctionSuccessful(event: AuctionSuccessfulEvent): void {
@@ -111,9 +128,24 @@ export function handleAuctionSuccessful(event: AuctionSuccessfulEvent): void {
     master.valueEarnedSelling = BigInt.fromI32(0)
   }
   master.totalKittiesBought = master.totalKittiesBought + 1
-  master.valueSpentBuying.plus(event.params.totalPrice)
+  master.valueSpentBuying = master.valueSpentBuying + event.params.totalPrice
   master.lastTransacted = event.block.timestamp
   master.save()
+  
+  let day = event.block.timestamp / BigInt.fromI32(86400)
+  let dayID = day.toString()
+  let dailyStat = DailyStat.load(dayID)
+  if (dailyStat == null) {
+    dailyStat = new DailyStat(dayID)
+    dailyStat.auctionsCreatedToday = 0
+    dailyStat.auctionsCompletedToday = 0
+    dailyStat.auctionsCancelledToday = 0
+    dailyStat.valueCreatedToday = BigInt.fromI32(0)
+    dailyStat.valueCompletedToday = BigInt.fromI32(0)
+  }
+  dailyStat.auctionsCompletedToday = dailyStat.auctionsCompletedToday + 1
+  dailyStat.valueCompletedToday = dailyStat.valueCompletedToday + event.params.totalPrice
+  dailyStat.save()
 
 }
 
@@ -145,6 +177,21 @@ export function handleAuctionCancelled(event: AuctionCancelledEvent): void {
   //Set the value of auctions cancelled
   salesSummary.valueCancelled = salesSummary.valueCreated - salesSummary.valueCompleted
   salesSummary.save()
+  
+  
+  let day = event.block.timestamp / BigInt.fromI32(86400)
+  let dayID = day.toString()
+  let dailyStat = DailyStat.load(dayID)
+  if (dailyStat == null) {
+    dailyStat = new DailyStat(dayID)
+    dailyStat.auctionsCreatedToday = 0
+    dailyStat.auctionsCompletedToday = 0
+    dailyStat.auctionsCancelledToday = 0
+    dailyStat.valueCreatedToday = BigInt.fromI32(0)
+    dailyStat.valueCompletedToday = BigInt.fromI32(0)
+  }
+  dailyStat.auctionsCancelledToday = dailyStat.auctionsCancelledToday + 1
+  dailyStat.save()
 
 }
 

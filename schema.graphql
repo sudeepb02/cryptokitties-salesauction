@@ -46,4 +46,11 @@ type Master @entity {
   valueEarnedSelling: BigInt!
 }
 
-  
+type DailyStat @entity {
+  id: ID!		#will store date
+  auctionsCreatedToday: Int!
+  auctionsCompletedToday: Int!
+  auctionsCancelledToday: Int!
+  valueCreatedToday: BigInt!
+  valueCompletedToday: BigInt!
+}
