@@ -60,6 +60,6 @@ Similar to Sales summary, the subgraph can be queried to provide the overall sir
     
     
   #### Team
-    * Sudeep, github: sudeepb02
+    * Sudeep Biswas, github: sudeepb02
     * Michael Cohen, github: michaelcohen716
     
