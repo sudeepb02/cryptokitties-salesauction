@@ -15,7 +15,7 @@ For example
 ## Cryptokitties Sales Auction
 This subgraph indexes the data from [Cryptokitties Sales Auction](https://etherscan.io/address/0xb1690c08e213a35ed9bab7b318de14420fb57d8c) and is deployed to the Graph Explorer [here](https://thegraph.com/explorer/subgraph/sudeepb02/cryptokitties-salesauction).
 Subgraph for the [Cryptokitties Siring Auction](https://etherscan.io/address/0xc7af99fe5513eb6710e6d5f44f9989da40f27f26) is deployed [here](https://thegraph.com/explorer/subgraph/sudeepb02/cryptokitties-siringauction). 
-Though it is feasible to have multiple data sources for a smart contract, both these smart contracts have almost same structure and emit the same events, so we thought it better to deploy them as separate subgraphs for the hackathon as time was limited.
+Though it is possible to have multiple data sources for a smart contract, both these smart contracts have almost same structure and emit the same events. Adding siring auctions smart contract to the sales auction was breaking the current one, so we thought it better to avoid the debugging and to deploy them as separate subgraphs for the hackathon as time was limited. Source code for the Cryptokitties Siring auction can be accessed [here](https://github.com/sudeepb02/cryptokitties-siringauction). Both these sources would be added under a single subgraph after the Beyond Blockchain hackathon.
 
 A Decentralized web app to visualize the current functionaly lives [here](http://68.183.80.178:3000) and the source code for the dApp is available [here](https://github.com/michaelcohen716/kitties-graph)
 
