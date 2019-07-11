@@ -32,4 +32,8 @@ dataSources:
           handler: handlePause
         - event: Unpause()
           handler: handleUnpause
+      callHandlers:
+        - function: createAuction(uint256,uint256,uint256,uint256,address)
+          handler: handleCreateAuction
       file: ./src/mapping.ts
+

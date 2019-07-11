@@ -4,6 +4,7 @@ import {
   AuctionCancelled as AuctionCancelledEvent,
   Pause as PauseEvent,
   Unpause as UnpauseEvent
+  CreateAuctionCall
 } from "../generated/Contract/Contract"
 import {
   AuctionCreated,
@@ -17,6 +18,10 @@ import {
 } from "../generated/schema"
 
 import {BigInt} from '@graphprotocol/graph-ts'
+
+export function handelCreateAuction(call: CreateAuctionCall): void {
+
+}
 
 export function handleAuctionCreated(event: AuctionCreatedEvent): void {
   let entity = new AuctionCreated(
