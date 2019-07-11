@@ -28,7 +28,8 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
   entity.duration = event.params.duration
   entity.save()
 
-  //Get Sales summary entity, if does not exist, create new
+  //Get Sales summary entity from the store.
+  //If it does not exist(is null), create new
   let salesSummary = SalesSummary.load("1");
   if (salesSummary == null) {
     salesSummary = new SalesSummary("1")
@@ -42,17 +43,17 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
   }
 
   //Increment the auctionsCreated count
-  let auctionsCreatedCount = salesSummary.auctionsCreated
-  auctionsCreatedCount = auctionsCreatedCount + 1
-  salesSummary.auctionsCreated = auctionsCreatedCount
+  salesSummary.auctionsCreated = salesSummary.auctionsCreated + 1
 
   //Increment the value of auctions created
-  let valueCreatedETH = salesSummary.valueCreated
-  valueCreatedETH = valueCreatedETH + event.params.startingPrice
-  salesSummary.valueCreated = valueCreatedETH
+  salesSummary.valueCreated = salesSummary.valueCreated + event.params.startingPrice
+
+  //Save the sales summary in store
   salesSummary.save()
 
-  //Get Master entity
+  //Get Master entity from store
+  //If it is null(does not exist), create new
+  //Ethereum address acts as ID for the Master entity
   let master = Master.load(event.transaction.from.toHex())
   if (master == null) {
     master = new Master(event.transaction.from.toHex())
@@ -65,7 +66,9 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
   }
   master.lastTransacted = event.block.timestamp
   master.save()
-  
+
+  // Get timestamp for event and convert it to days since epoch
+  // Days since epoch will be the ID here to store per day stats
   let day = event.block.timestamp / BigInt.fromI32(86400)
   let dayID = day.toString()
   let dailyStat = DailyStat.load(dayID)
@@ -77,10 +80,11 @@ export function handleAuctionCreated(event: AuctionCreatedEvent): void {
     dailyStat.valueCreatedToday = BigInt.fromI32(0)
     dailyStat.valueCompletedToday = BigInt.fromI32(0)
   }
+
+  // Increment the count and value of today's stats
   dailyStat.auctionsCreatedToday = dailyStat.auctionsCreatedToday + 1
   dailyStat.valueCreatedToday = dailyStat.valueCreatedToday + event.params.startingPrice
   dailyStat.save()
-  
 }
 
 export function handleAuctionSuccessful(event: AuctionSuccessfulEvent): void {
@@ -92,7 +96,8 @@ export function handleAuctionSuccessful(event: AuctionSuccessfulEvent): void {
   entity.winner = event.params.winner
   entity.save()
 
-  //Get Sales summary entity if exists, else create new
+  //Get Sales summary entity from the store.
+  //If it does not exist(is null), create new
   let salesSummary = SalesSummary.load("1");
   if (salesSummary == null) {
     salesSummary = new SalesSummary("1")
@@ -106,14 +111,11 @@ export function handleAuctionSuccessful(event: AuctionSuccessfulEvent): void {
   }
 
   //Increment the auctionsCompleted count
-  let auctionsCompletedCount = salesSummary.auctionsCompleted
-  auctionsCompletedCount = auctionsCompletedCount + 1
-  salesSummary.auctionsCompleted = auctionsCompletedCount
+  salesSummary.auctionsCompleted = salesSummary.auctionsCompleted + 1
 
   //Increment the value of auctions completed
-  let valueCompletedETH = salesSummary.valueCompleted
-  valueCompletedETH = valueCompletedETH + event.params.totalPrice
-  salesSummary.valueCompleted = valueCompletedETH
+  salesSummary.valueCompleted = salesSummary.valueCompleted + event.params.totalPrice
+  
   salesSummary.save()
   
   //Get Master entity
@@ -156,7 +158,9 @@ export function handleAuctionCancelled(event: AuctionCancelledEvent): void {
   entity.tokenId = event.params.tokenId
   entity.save()
 
-  //Get Sales summary entity if exists, else create new
+  //Get Sales summary entity from the store.
+  //If it does not exist(is null), create new
+
   let salesSummary = SalesSummary.load("1");
   if (salesSummary == null) {
     salesSummary = new SalesSummary("1")
@@ -170,15 +174,12 @@ export function handleAuctionCancelled(event: AuctionCancelledEvent): void {
   }
 
   //Increment the auctionsCancelled count
-  let auctionsCancelledCount = salesSummary.auctionsCancelled
-  auctionsCancelledCount = auctionsCancelledCount + 1
-  salesSummary.auctionsCancelled = auctionsCancelledCount
+  salesSummary.auctionsCancelled = salesSummary.auctionsCancelled + 1
 
   //Set the value of auctions cancelled
   salesSummary.valueCancelled = salesSummary.valueCreated - salesSummary.valueCompleted
   salesSummary.save()
-  
-  
+   
   let day = event.block.timestamp / BigInt.fromI32(86400)
   let dayID = day.toString()
   let dailyStat = DailyStat.load(dayID)
@@ -191,8 +192,8 @@ export function handleAuctionCancelled(event: AuctionCancelledEvent): void {
     dailyStat.valueCompletedToday = BigInt.fromI32(0)
   }
   dailyStat.auctionsCancelledToday = dailyStat.auctionsCancelledToday + 1
-  dailyStat.save()
-
+  
+  dailyStat.save() 
 }
 
 export function handlePause(event: PauseEvent): void {

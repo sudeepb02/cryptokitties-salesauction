@@ -47,7 +47,7 @@ type Master @entity {
 }
 
 type DailyStat @entity {
-  id: ID!		#will store date
+  id: ID!		#will store days passed since 01/01/1970
   auctionsCreatedToday: Int!
   auctionsCompletedToday: Int!
   auctionsCancelledToday: Int!
